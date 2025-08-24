@@ -1,6 +1,5 @@
+# 🌾 Sithee Food Products - Premium Quality Traditional Taste
 
-<<<<<<< HEAD
-=======
 A modern e-commerce web application for traditional South Indian food products built with React.js frontend and Node.js backend.
 
 ## 📋 Table of Contents
