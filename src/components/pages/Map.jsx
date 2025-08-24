@@ -13,7 +13,7 @@ L.Icon.Default.mergeOptions({
 
 
 const outlets = [
-  { id: 1, name: "No147, Near Ration Shop, C.mettupalayam, Perode-638102", position: [ 11.199 , 76.941] }
+  { id: 1, name: "No147, Near Ration Shop, C.mettupalayam, Perode-638102", position: [ 11.379185431608306, 77.64138380070528] }
 ];
 
 const Map = () => {

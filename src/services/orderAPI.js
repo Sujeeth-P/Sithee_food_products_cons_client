@@ -17,6 +17,7 @@ export const createOrder = async (orderData) => {
           Authorization: `Bearer ${token}`
         }
       };
+      
       console.log('Creating authenticated order for logged-in user');
       const response = await axios.post(`${API_URL}/orders`, orderData, config);
       return response.data;

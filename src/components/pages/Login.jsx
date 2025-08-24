@@ -235,7 +235,7 @@ const Login = () => {
             </form>
             
             {/* Admin Access Info */}
-            <div style={{
+            {/* <div style={{
               background: 'rgba(0, 123, 255, 0.1)',
               border: '1px solid #007bff',
               borderRadius: '8px',
@@ -248,7 +248,7 @@ const Login = () => {
             }}>
               <i className="fas fa-crown" style={{ marginRight: '6px' }}></i>
               <strong>Admin Access:</strong> Use <code>admin@dkart.com</code> and <code>admin123</code> to access admin panel
-            </div>
+            </div> */}
             
             <p>Don't have an account? <Link to="/signup" className="a2">Sign up</Link></p>
           </div>
