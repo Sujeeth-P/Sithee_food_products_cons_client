@@ -1,5 +1,5 @@
 // Product API service for fetching products from backend
-const API_BASE_URL = import.meta.env.VITE_API_URL + '/products';
+const API_BASE_URL = (import.meta.env.VITE_API_URL || 'https://sithee-food-products-cons-server.onrender.com')+ '/products';
 
 
 // Mock products for development when backend is unavailable

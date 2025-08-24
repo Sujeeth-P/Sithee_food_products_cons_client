@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || 'https://sithee-food-products-cons-server.onrender.com';
 
 // Create a new order
 export const createOrder = async (orderData) => {
@@ -17,7 +17,7 @@ export const createOrder = async (orderData) => {
           Authorization: `Bearer ${token}`
         }
       };
-      
+
       console.log('Creating authenticated order for logged-in user');
       const response = await axios.post(`${API_URL}/orders`, orderData, config);
       return response.data;
