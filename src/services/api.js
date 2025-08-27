@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = (import.meta.env.VITE_API_BASE_URL || 'https://sithee-food-products-cons-server.onrender.com/api') + '/sithee';
+const API_URL = (import.meta.env.VITE_API_BASE_URL || 'https://sithee-food-products-cons-server.onrender.com') + '/sithee';
 
 // Create axios instance with base URL
 const api = axios.create({

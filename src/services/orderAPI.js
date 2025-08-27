@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://sithee-food-products-cons-server.onrender.com';
+const API_URL = import.meta.env.VITE_API_URL || 'https://sithee-food-products-cons-server.onrender.com/api';
 
 // Create a new order
 export const createOrder = async (orderData) => {
