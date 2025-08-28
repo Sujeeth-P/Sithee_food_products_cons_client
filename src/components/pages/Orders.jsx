@@ -167,7 +167,7 @@ function Orders() {
         
         <div className="orders-list">
           <div className="orders-header">
-            <div className="order-col order-id">Order ID</div>
+            <div className="order-col order-id">Products ordered</div>
             <div className="order-col order-date">Date</div>
             <div className="order-col order-total">Total</div>
             <div className="order-col order-status">Status</div>
@@ -176,7 +176,22 @@ function Orders() {
           
           {Array.isArray(orders) && orders.map(order => (
             <div key={order._id} className="order-row">
-              <div className="order-col order-id">{order._id.substring(0, 8)}...</div>
+              <div className="order-col order-id">   <img
+                        src={order.items?.[0]?.productId?.image}
+                        alt={order.items?.[0]?.productId?.name || "Product"}
+                        style={{
+                          width: '100px',
+                          height: '100px',
+                          borderRadius: '6px',
+                          objectFit: 'cover',
+                          backgroundColor: '#f1f5f9',
+                          border: '1px solid #e2e8f0'
+                        }}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
+                      /></div>
               <div className="order-col order-date">{formatDate(order.orderDate || order.createdAt)}</div>
               <div className="order-col order-total">₹{order.total || order.finalAmount}</div>
               <div className="order-col order-status">
@@ -227,8 +242,23 @@ function Orders() {
                 <div className="ordered-items">
                   {selectedOrder.items.map((item, index) => (
                     <div key={index} className="ordered-item">
-                      <div className="item-name-quantity">
-                        <span className="item-name">{item.name}</span>
+                      <div className="item-name-quantity">   <img
+                        src={item?.productId?.image}
+                        alt={item?.productId?.name || "Product"}
+                        style={{
+                          width: '60px',
+                          height: '60px',
+                          borderRadius: '6px',
+                          objectFit: 'cover',
+                          backgroundColor: '#f1f5f9',
+                          border: '1px solid #e2e8f0'
+                        }}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                        <span className="item-name" style={{marginLeft: '8px', fontSize: '14px'}}>{item?.productId?.name}</span>
                         <span className="item-quantity">×{item.quantity}</span>
                       </div>
                       <div className="item-price">₹{item.price} each</div>

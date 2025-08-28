@@ -336,7 +336,7 @@ function CheckoutModal({ onClose, cart, total }) {
                         value={formData.state}
                         onChange={handleChange}
                         className={formErrors.state ? 'error' : ''}
-                        placeholder="e.g., Tamil Nadu or TN"
+                        placeholder="e.g., Tamil Nadu"
                         required
                       />
                       {formErrors.state && <span className="error-text">{formErrors.state}</span>}
