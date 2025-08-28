@@ -20,20 +20,20 @@ function CheckoutModal({ onClose, cart, total }) {
     zip: '',
     paymentMethod: 'cod'
   });
+  
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderId, setOrderId] = useState(null);
+  const [formErrors, setFormErrors] = useState({});
 
   // Check if user is authenticated
   useEffect(() => {
     if (!user) {
-      // Show login requirement modal or redirect to login
       const shouldLogin = window.confirm(
         'You need to login to place an order. Would you like to login now?'
       );
       if (shouldLogin) {
-        // Close modal and redirect to login with return state
         onClose();
         navigate('/login', { 
           state: { 
@@ -52,18 +52,79 @@ function CheckoutModal({ onClose, cart, total }) {
     return null;
   }
 
+  // Form validation
+  const validateForm = () => {
+    const errors = {};
+    
+    if (!formData.fullName.trim()) {
+      errors.fullName = 'Full name is required';
+    } else if (!/^[a-zA-Z\s]+$/.test(formData.fullName)) {
+      errors.fullName = 'Full name should only contain letters and spaces';
+    }
+    
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+    
+    if (!formData.phone.trim()) {
+      errors.phone = 'Phone number is required';
+    } else if (!/^(\+91|91)?[6-9]\d{9}$/.test(formData.phone.replace(/\s+/g, ''))) {
+      errors.phone = 'Please enter a valid Indian phone number';
+    }
+    
+    if (!formData.address.trim()) {
+      errors.address = 'Address is required';
+    } else if (formData.address.trim().length < 10) {
+      errors.address = 'Please provide a complete address';
+    }
+    
+    if (!formData.city.trim()) {
+      errors.city = 'City is required';
+    } else if (!/^[a-zA-Z\s]+$/.test(formData.city) || formData.city.trim().length < 5) {
+      errors.city = 'Please enter a valid city name';
+    }
+    
+    if (!formData.state.trim()) {
+      errors.state = 'State is required';
+    } else if (formData.state.trim().length < 3) {
+      errors.state = 'Please enter a valid state name';
+    }
+    
+    if (!formData.zip.trim()) {
+      errors.zip = 'PIN code is required';
+    } else if (!/^[1-9][0-9]{5}$/.test(formData.zip)) {
+      errors.zip = 'Please enter a valid 6-digit PIN code';
+    }
+    
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // Clear validation for the field being edited
+    if (formErrors[name]) {
+      setFormErrors({ ...formErrors, [name]: '' });
+    }
+    
     setFormData({
       ...formData,
       [name]: value
     });
   };
 
-  // Go to next step
-  const handleNextStep = (e) => {
+  // Go to next step with validation
+  const handleNextStep = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
     setStep(step + 1);
   };
 
@@ -78,19 +139,15 @@ function CheckoutModal({ onClose, cart, total }) {
     setIsSubmitting(true);
     
     try {
-      // Calculate totals
       const { subtotal, shipping, total } = calculateOrderTotals(cart);
       
-      // Prepare order data
       const orderData = {
-        // For authenticated orders, use shippingAddress structure
         shippingAddress: {
           street: formData.address,
           city: formData.city,
           state: formData.state,
-          zipCode: formData.zip,
+          zipCode: formData.zip
         },
-        // Keep customerInfo for guest orders compatibility
         customerInfo: {
           fullName: formData.fullName,
           email: formData.email,
@@ -101,12 +158,12 @@ function CheckoutModal({ onClose, cart, total }) {
           zipCode: formData.zip,
         },
         items: cart.map(item => ({
-          productId: item.id || item._id, // Support both id formats
+          productId: item.id || item._id,
           name: item.name,
           price: item.price,
           quantity: item.quantity,
           subtotal: item.price * item.quantity,
-          image: item.image // Include image for display
+          image: item.image
         })),
         paymentMethod: formData.paymentMethod,
         subtotal,
@@ -117,28 +174,22 @@ function CheckoutModal({ onClose, cart, total }) {
       };
       
       console.log('Submitting order:', orderData);
-      console.log('Phone number being sent:', orderData.customerInfo.phone);
       
       try {
-        // Try to submit to API
-        console.log('Submitting order to API...');
         const response = await createOrder(orderData);
         console.log('Order API response:', response);
         setOrderId(response.orderId || response._id || 'ORD-' + Math.floor(100000 + Math.random() * 900000));
         
-        // Clear cart after successful order
         clearCart();
         setOrderComplete(true);
       } catch (apiError) {
         console.error('API submission failed:', apiError);
         
-        // Display specific error messages based on response
         if (apiError.response) {
           const { status, data } = apiError.response;
           
           if (status === 401) {
             alert('You need to be logged in to place an order. Continuing as guest...');
-            // Try guest checkout explicitly
             try {
               console.log('Trying guest checkout...');
               const guestResponse = await axios.post(`http://localhost:5000/api/orders/guest`, orderData);
@@ -151,18 +202,15 @@ function CheckoutModal({ onClose, cart, total }) {
               console.error('Guest checkout also failed:', guestError);
             }
           } else if (status === 400) {
-            // Show specific validation error from backend
             alert(`Order validation error: ${data.message || 'Please check your order details.'}`);
             return;
           }
         }
         
-        // If all API attempts fail, use fallback for better user experience
         console.log('Using local fallback...');
         await new Promise(resolve => setTimeout(resolve, 1000));
         setOrderId('ORD-' + Math.floor(100000 + Math.random() * 900000));
         
-        // Clear cart after successful order
         clearCart();
         setOrderComplete(true);
       }
@@ -203,6 +251,7 @@ function CheckoutModal({ onClose, cart, total }) {
               {step === 1 && (
                 <form onSubmit={handleNextStep} className="checkout-form">
                   <h3>Delivery Information</h3>
+                  
                   <div className="form-row">
                     <div className="form-group">
                       <label htmlFor="fullName">Full Name *</label>
@@ -212,8 +261,10 @@ function CheckoutModal({ onClose, cart, total }) {
                         name="fullName"
                         value={formData.fullName}
                         onChange={handleChange}
+                        className={formErrors.fullName ? 'error' : ''}
                         required
                       />
+                      {formErrors.fullName && <span className="error-text">{formErrors.fullName}</span>}
                     </div>
                   </div>
                   
@@ -226,8 +277,10 @@ function CheckoutModal({ onClose, cart, total }) {
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
+                        className={formErrors.email ? 'error' : ''}
                         required
                       />
+                      {formErrors.email && <span className="error-text">{formErrors.email}</span>}
                     </div>
                     <div className="form-group">
                       <label htmlFor="phone">Phone *</label>
@@ -237,8 +290,11 @@ function CheckoutModal({ onClose, cart, total }) {
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
+                        className={formErrors.phone ? 'error' : ''}
+                        placeholder="Enter 10-digit mobile number"
                         required
                       />
+                      {formErrors.phone && <span className="error-text">{formErrors.phone}</span>}
                     </div>
                   </div>
                   
@@ -250,8 +306,11 @@ function CheckoutModal({ onClose, cart, total }) {
                       name="address"
                       value={formData.address}
                       onChange={handleChange}
+                      className={formErrors.address ? 'error' : ''}
+                      placeholder="Enter your complete address"
                       required
                     />
+                    {formErrors.address && <span className="error-text">{formErrors.address}</span>}
                   </div>
                   
                   <div className="form-row">
@@ -263,8 +322,10 @@ function CheckoutModal({ onClose, cart, total }) {
                         name="city"
                         value={formData.city}
                         onChange={handleChange}
+                        className={formErrors.city ? 'error' : ''}
                         required
                       />
+                      {formErrors.city && <span className="error-text">{formErrors.city}</span>}
                     </div>
                     <div className="form-group">
                       <label htmlFor="state">State *</label>
@@ -274,24 +335,33 @@ function CheckoutModal({ onClose, cart, total }) {
                         name="state"
                         value={formData.state}
                         onChange={handleChange}
+                        className={formErrors.state ? 'error' : ''}
+                        placeholder="e.g., Tamil Nadu or TN"
                         required
                       />
+                      {formErrors.state && <span className="error-text">{formErrors.state}</span>}
                     </div>
                     <div className="form-group">
-                      <label htmlFor="zip">ZIP Code *</label>
+                      <label htmlFor="zip">PIN Code *</label>
                       <input
                         type="text"
                         id="zip"
                         name="zip"
                         value={formData.zip}
                         onChange={handleChange}
+                        className={formErrors.zip ? 'error' : ''}
+                        placeholder="6-digit PIN code"
+                        maxLength="6"
                         required
                       />
+                      {formErrors.zip && <span className="error-text">{formErrors.zip}</span>}
                     </div>
                   </div>
                   
                   <div className="form-actions">
-                    <button type="submit" className="next-btn">Continue to Payment</button>
+                    <button type="submit" className="next-btn">
+                      Continue to Payment
+                    </button>
                   </div>
                 </form>
               )}

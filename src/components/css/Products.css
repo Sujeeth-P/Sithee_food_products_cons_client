@@ -981,31 +981,20 @@
     font-size: 1rem;
   }
   
+  /* Hide search bar and category filters on mobile */
+  .products-filter {
+    display: none;
+  }
+  
+  /* Adjust products section padding when filters are hidden */
+  .products-section {
+    padding: 3rem 0;
+  }
+  
   .products-grid {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
     justify-content: center;
-  }
-  
-  .category-filters {
-    justify-content: flex-start;
-    overflow-x: auto;
-    padding: 0 0 1rem 0;
-  }
-  
-  .category-filters .filter-btn {
-    white-space: nowrap;
-    flex-shrink: 0;
-    background: white !important;
-    color: #f7931e !important;
-    border-color: #f7931e !important;
-  }
-  
-  .category-filters .filter-btn.active,
-  .category-filters .filter-btn:hover {
-    background: linear-gradient(135deg, #f7931e, #ff6b35) !important;
-    color: white !important;
-    border-color: #f7931e !important;
   }
   
   .modal-content {
@@ -1237,7 +1226,7 @@
 }
 
 /* Enhanced Responsive Design for Hero and Filters */
-@media (max-width: 768px) {
+@media (min-width: 769px) {
   .products-hero-content h1 {
     font-size: 2.5rem;
     margin-bottom: 1rem;
@@ -1277,26 +1266,5 @@
     padding: 0.8rem 1.5rem;
     font-size: 0.9rem;
     min-width: 100px;
-  }
-}
-
-@media (max-width: 480px) {
-  .products-hero-content h1 {
-    font-size: 2rem;
-  }
-
-  .products-hero-content p {
-    font-size: 1rem;
-  }
-
-  .products-filter {
-    margin: -1.5rem auto 2rem auto;
-    padding: 1.5rem 1rem;
-  }
-
-  .category-filters .filter-btn {
-    padding: 0.7rem 1.2rem;
-    font-size: 0.85rem;
-    min-width: 90px;
   }
 }

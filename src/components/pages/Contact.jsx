@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import '../css/Contact.css';
 import Map from "../pages/Map";
+import Swal from 'sweetalert2';
 
 function Contact() {
   // Scroll to top when component mounts
@@ -11,6 +12,56 @@ function Contact() {
       behavior: 'instant'
     });
   }, []);
+
+  async function handleSubmit(event) {
+  event.preventDefault();
+
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbybf2JSZxveJ6elDCuV7olGB60XQhqrItbXSHLcX7qWG1T4lsqEjljryK8BGd8NhHGDFA/exec';
+  const form = event.target.closest("form"); // ensures we get the <form> element
+  const formData = new FormData(form);
+
+  Swal.fire({
+    title: 'Submitting...',
+    text: 'Please wait while we process your registration',
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    showConfirmButton: false,
+    didOpen: () => {
+      Swal.showLoading();
+    }
+  });
+
+  try {
+    const response = await fetch(scriptURL, { method: 'POST', body: formData });
+
+    if (response.ok) {
+      await Swal.fire({
+        title: "Thank you!",
+        text: "Your registration has been submitted successfully!",
+        icon: "success",
+        confirmButtonText: 'OK',
+        showClass: {
+          popup: `animate__animated animate__fadeInUp animate__faster`
+        },
+        hideClass: {
+          popup: `animate__animated animate__fadeOutDown animate__faster`
+        }
+      });
+
+      form.reset();
+    } else {
+      throw new Error('Data not saved to sheet');
+    }
+  } catch (error) {
+    console.error('Error!', error.message);
+    Swal.fire({
+      title: 'Error!',
+      text: 'There was an error submitting your form. Please try again.',
+      icon: 'error',
+      confirmButtonText: 'OK'
+    });
+  }
+}
 
   return (
     <div className="contact-page">
@@ -71,7 +122,7 @@ function Contact() {
 
             <div className="contact-form">
               <h2>Send us a Message</h2>
-              <form>
+              <form action='https://script.google.com/macros/s/AKfycbybf2JSZxveJ6elDCuV7olGB60XQhqrItbXSHLcX7qWG1T4lsqEjljryK8BGd8NhHGDFA/exec' method='post' name='Sitheefoods'>
                 <div className="form-group">
                   <label htmlFor="name">Full Name *</label>
                   <input type="text" id="name" name="name" required />
@@ -103,7 +154,7 @@ function Contact() {
                   <textarea id="message" name="message" rows="5" required></textarea>
                 </div>
 
-                <button type="submit" className="submit-btn">Send Message</button>
+                <button type="submit" onClick={handleSubmit} className="submit-btn">Send Message</button>
               </form>
             </div>
           </div>
