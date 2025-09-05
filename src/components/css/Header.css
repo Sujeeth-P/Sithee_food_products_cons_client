@@ -1,13 +1,13 @@
 /* Modern Header Styles */
 .modern-header {
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  /* background: linear-gradient(135deg, #f7931e 0%, #ff6b35 50%, #f7931e 100%); */
+  /* backdrop-filter: blur(10px); */
+  /* border-bottom: 1px solid rgba(0, 0, 0, 0.08); */
   position: fixed;
   top: 0;
   width: 100%;
-  z-index: 1000;
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+   z-index: 2;
+  /* box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06); */
   transition: all 0.3s ease;
 }
 

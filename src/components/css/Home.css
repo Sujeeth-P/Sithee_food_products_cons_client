@@ -6,12 +6,13 @@
 /* Hero Section */
 .hero-section {
   position: relative;
-  min-height: calc(100vh - 80px); /* Account for fixed header */
+  /* min-height: calc(100vh - 80px);  */
   background: linear-gradient(135deg, #f7931e 0%, #ff6b35 50%, #f7931e 100%);
   display: flex;
   align-items: center;
   overflow: hidden;
-  margin-top: 0; /* Remove margin since main-content handles it */
+  /* z-index: 1; */
+  /* margin-top: 0; */
 }
 
 .hero-background {
