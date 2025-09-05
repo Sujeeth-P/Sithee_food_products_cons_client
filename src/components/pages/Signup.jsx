@@ -338,7 +338,7 @@ const Signup = () => {
               style={{
                 marginTop: '20px',
                 padding: '10px 30px',
-                backgroundColor: '#1B1B3A',
+                backgroundColor: '#2c1810',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
@@ -361,7 +361,7 @@ const StyledWrapper = styled.div`
     position: relative;
     width: 100%;
     height: 100vh;
-    background-color: #1B1B3A;
+    background: linear-gradient(135deg, rgba(248, 151, 40, 0.9), rgba(254, 113, 62, 0.85));
     display: flex;
     justify-content: center;
     align-items: center;
@@ -387,7 +387,7 @@ const StyledWrapper = styled.div`
   .login-box p:first-child {
     margin: 0 0 30px;
     padding: 0;
-    color: #1B1B3A;
+    color: #2c1810;
     text-align: center;
     font-size: 1.5rem;
     font-weight: bold;
@@ -402,10 +402,10 @@ const StyledWrapper = styled.div`
     width: 100%;
     padding: 10px 0;
     font-size: 16px;
-    color: #1B1B3A;
+    color: #2c1810;
     margin-bottom: 30px;
     border: none;
-    border-bottom: 1px solid #1B1B3A;
+    border-bottom: 1px solid #2c1810;
     outline: none;
     background: transparent;
     transition: border-color 0.3s;
@@ -627,13 +627,13 @@ const StyledWrapper = styled.div`
   }
 
   .login-box a.a2 {
-    color: #1B1B3A;
+    color: #2c1810;
     text-decoration: none;
   }
 
   .login-box a.a2:hover {
     background: transparent;
-    color: #1B1B3A;
+    color: #2c1810;
     border-radius: 5px;
   }
 `;
