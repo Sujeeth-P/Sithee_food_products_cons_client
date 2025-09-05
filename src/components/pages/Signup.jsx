@@ -71,9 +71,9 @@ const Signup = () => {
     const checks = validatePasswordRequirements(password);
     const score = Object.values(checks).filter(Boolean).length;
     
-    if (score < 2) return 'weak';
+    if (score < 2) return 'Too weak';
     if (score < 4) return 'fair';
-    if (score < 5) return 'good';
+    if (score < 5) return 'Somthing good';
     return 'strong';
   };
 
@@ -460,7 +460,7 @@ const StyledWrapper = styled.div`
 
   .strength-fill.good {
     width: 75%;
-    background-color: #66BB6A;
+    background-color: #b1bb66ff;
   }
 
   .strength-fill.strong {
@@ -491,7 +491,7 @@ const StyledWrapper = styled.div`
     left: 0;
     padding: 10px 0;
     font-size: 16px;
-    color: #1B1B3A;
+    color: #2c1810;
     pointer-events: none;
     transition: .5s;
   }
@@ -500,7 +500,7 @@ const StyledWrapper = styled.div`
   .login-box .user-box input:valid ~ label {
     top: -20px;
     left: 0;
-    color: #1B1B3A;
+    color: #2c1810;
     font-size: 12px;
   }
 
