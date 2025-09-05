@@ -125,7 +125,7 @@
 }
 
 .discover-btn {
-  background: #2d5016;
+  background: #2d5016d7 !important;
   border: none;
   padding: 15px 30px;
   border-radius: 50px;
@@ -136,7 +136,7 @@
 }
 
 .discover-btn:hover {
-  background: #1a3009;
+  background: #000000 !important;
   transform: translateY(-2px);
   box-shadow: 0 10px 20px rgba(0,0,0,0.2);
   color: white;
@@ -155,7 +155,7 @@
 
 .learn-more:hover {
   background: white;
-  color: #ff6b35;
+  color: #000000;
   transform: translateY(-2px);
 }
 

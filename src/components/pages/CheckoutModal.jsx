@@ -1,18 +1,218 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useCart } from '../../context/CartContext';
-import { useAuth } from '../../context/AuthContext';
-import { createOrder, calculateOrderTotals } from '../../services/orderAPI';
+import React, { useState, useEffect } from 'react';
 import '../css/CheckoutModal.css';
 
+// State-City data for autocomplete
+const stateCityData = {
+  "Tamil Nadu": [
+    "Chennai", "Coimbatore", "Madurai", "Tiruchirappalli", "Salem", "Tirunelveli",
+    "Erode", "Vellore", "Thoothukudi", "Dindigul", "Thanjavur", "Ranipet",
+    "Sivakasi", "Karur", "Udhagamandalam", "Hosur", "Nagercoil", "Kanchipuram",
+    "Kumarakonam", "Pudukkottai", "Ambur", "Pallavaram", "Neyveli", "Rajapalayam"
+  ],
+  "Maharashtra": [
+    "Mumbai", "Pune", "Nagpur", "Nashik", "Aurangabad", "Solapur", "Amravati",
+    "Kolhapur", "Sangli", "Jalgaon", "Akola", "Latur", "Dhule", "Ahmednagar",
+    "Chandrapur", "Parbhani", "Ichalkaranji", "Jalna", "Ambajogai", "Bhusawal"
+  ],
+  "Karnataka": [
+    "Bangalore", "Mysore", "Hubli", "Mangalore", "Belgaum", "Gulbarga", "Davanagere",
+    "Bellary", "Bijapur", "Shimoga", "Tumkur", "Raichur", "Bidar", "Hospet",
+    "Hassan", "Gadag", "Udupi", "Robertsonpet", "Bhadravati", "Chitradurga"
+  ],
+  "Kerala": [
+    "Thiruvananthapuram", "Kochi", "Kozhikode", "Thrissur", "Kollam", "Palakkad",
+    "Alappuzha", "Malappuram", "Kannur", "Kasaragod", "Kottayam", "Idukki",
+    "Ernakulam", "Wayanad", "Pathanamthitta", "Munnar", "Varkala", "Bekal"
+  ],
+  "Andhra Pradesh": [
+    "Hyderabad", "Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Kurnool",
+    "Rajahmundry", "Tirupati", "Anantapur", "Kadapa", "Vizianagaram", "Eluru",
+    "Ongole", "Nandyal", "Machilipatnam", "Adoni", "Tenali", "Chittoor"
+  ],
+  "Telangana": [
+    "Hyderabad", "Warangal", "Nizamabad", "Khammam", "Karimnagar", "Mahbubnagar",
+    "Nalgonda", "Adilabad", "Suryapet", "Miryalaguda", "Jagtial", "Mancherial",
+    "Nirmal", "Kothagudem", "Ramagundam", "Medak", "Bhongir", "Bodhan"
+  ],
+  "Rajasthan": [
+    "Jaipur", "Jodhpur", "Kota", "Bikaner", "Ajmer", "Udaipur", "Bhilwara",
+    "Alwar", "Bharatpur", "Sikar", "Pali", "Sri Ganganagar", "Kishangarh",
+    "Baran", "Dhaulpur", "Tonk", "Beawar", "Hanumangarh", "Gangapur City"
+  ],
+  "West Bengal": [
+    "Kolkata", "Howrah", "Durgapur", "Asansol", "Siliguri", "Malda", "Bardhaman",
+    "Baharampur", "Habra", "Kharagpur", "Shantipur", "Dankuni", "Dhulian",
+    "Ranaghat", "Haldia", "Raiganj", "Krishnanagar", "Nabadwip", "Medinipur"
+  ],
+  "Gujarat": [
+    "Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar", "Jamnagar", "Junagadh",
+    "Gandhinagar", "Anand", "Navsari", "Morbi", "Mahesana", "Bharuch", "Vapi",
+    "Valsad", "Palanpur", "Porbandar", "Godhra", "Botad", "Amreli"
+  ],
+  "Uttar Pradesh": [
+    "Lucknow", "Kanpur", "Ghaziabad", "Agra", "Varanasi", "Meerut", "Allahabad",
+    "Bareilly", "Aligarh", "Moradabad", "Saharanpur", "Gorakhpur", "Firozabad",
+    "Jhansi", "Muzaffarnagar", "Mathura", "Rampur", "Shahjahanpur", "Farrukhabad"
+  ]
+};
+
+// State-City Autocomplete Component
+const StateCityAutocomplete = ({ formData, handleChange, formErrors }) => {
+  const [cityQuery, setCityQuery] = useState(formData.city || '');
+  const [filteredCities, setFilteredCities] = useState([]);
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+
+  // Update city query when formData.city changes
+  useEffect(() => {
+    setCityQuery(formData.city || '');
+  }, [formData.city]);
+
+  // Filter cities based on selected state and search query
+  useEffect(() => {
+    if (formData.state && stateCityData[formData.state]) {
+      const availableCities = stateCityData[formData.state];
+      if (cityQuery) {
+        const filtered = availableCities.filter(city =>
+          city.toLowerCase().includes(cityQuery.toLowerCase())
+        );
+        setFilteredCities(filtered);
+      } else {
+        setFilteredCities(availableCities);
+      }
+    } else {
+      setFilteredCities([]);
+    }
+  }, [formData.state, cityQuery]);
+
+  const handleStateChange = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const state = e.target.value;
+    console.log('State selected:', state); // Debug log
+    handleChange({ target: { name: 'state', value: state } });
+    handleChange({ target: { name: 'city', value: '' } });
+    setCityQuery('');
+    setShowCitySuggestions(false);
+  };
+
+  const handleCityInputChange = (e) => {
+    const query = e.target.value;
+    setCityQuery(query);
+    handleChange({ target: { name: 'city', value: query } });
+    setShowCitySuggestions(true);
+  };
+
+  const handleCitySelect = (city) => {
+    setCityQuery(city);
+    handleChange({ target: { name: 'city', value: city } });
+    setShowCitySuggestions(false);
+  };
+
+  const handleCityInputFocus = () => {
+    if (formData.state) {
+      setShowCitySuggestions(true);
+    }
+  };
+
+  const handleCityInputBlur = () => {
+    setTimeout(() => {
+      setShowCitySuggestions(false);
+    }, 200);
+  };
+
+  return (
+    <div className="form-row">
+      <div className="form-group">
+        <label htmlFor="state">State *</label>
+        <select
+          id="state"
+          name="state"
+          value={formData.state}
+          onChange={handleStateChange}
+          onClick={(e) => e.stopPropagation()}
+          className={formErrors.state ? 'error' : ''}
+          style={{
+            pointerEvents: 'auto',
+            cursor: 'pointer',
+            zIndex: 'auto'
+          }}
+          required
+        >
+          <option value="">Select State</option>
+          {Object.keys(stateCityData).sort().map(state => (
+            <option key={state} value={state}>{state}</option>
+          ))}
+        </select>
+        {formErrors.state && <span className="error-text">{formErrors.state}</span>}
+      </div>
+      
+      <div className="form-group">
+        <label htmlFor="city">City *</label>
+        <div style={{ position: 'relative' }}>
+          <input
+            type="text"
+            id="city"
+            name="city"
+            value={cityQuery}
+            onChange={handleCityInputChange}
+            onFocus={handleCityInputFocus}
+            onBlur={handleCityInputBlur}
+            className={formErrors.city ? 'error' : ''}
+            placeholder={formData.state ? "Search or select city..." : "Select state first"}
+            disabled={!formData.state}
+            required
+          />
+          {formErrors.city && <span className="error-text">{formErrors.city}</span>}
+          
+          {/* City Suggestions Dropdown */}
+          {showCitySuggestions && formData.state && filteredCities.length > 0 && (
+            <div className="city-suggestions">
+              {filteredCities.slice(0, 8).map(city => (
+                <div
+                  key={city}
+                  className="city-suggestion-item"
+                  onClick={() => handleCitySelect(city)}
+                >
+                  {city}
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {/* No cities found message */}
+          {showCitySuggestions && formData.state && cityQuery && filteredCities.length === 0 && (
+            <div className="city-suggestions">
+              <div className="city-suggestion-item" style={{ color: '#666', cursor: 'default' }}>
+                No cities found matching "{cityQuery}"
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      <div className="form-group">
+        <label htmlFor="zip">PIN Code *</label>
+        <input
+          type="text"
+          id="zip"
+          name="zip"
+          value={formData.zip}
+          onChange={handleChange}
+          className={formErrors.zip ? 'error' : ''}
+          placeholder="6-digit PIN code"
+          maxLength="6"
+          required
+        />
+        {formErrors.zip && <span className="error-text">{formErrors.zip}</span>}
+      </div>
+    </div>
+  );
+};
+
 function CheckoutModal({ onClose, cart, total }) {
-  const { clearCart } = useCart();
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  
   const [formData, setFormData] = useState({
-    fullName: user?.name || '',
-    email: user?.email || '',
+    fullName: '',
+    email: '',
     phone: '',
     address: '',
     city: '',
@@ -26,31 +226,6 @@ function CheckoutModal({ onClose, cart, total }) {
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderId, setOrderId] = useState(null);
   const [formErrors, setFormErrors] = useState({});
-
-  // Check if user is authenticated
-  useEffect(() => {
-    if (!user) {
-      const shouldLogin = window.confirm(
-        'You need to login to place an order. Would you like to login now?'
-      );
-      if (shouldLogin) {
-        onClose();
-        navigate('/login', { 
-          state: { 
-            from: { pathname: '/cart' },
-            message: 'Please login to complete your order'
-          }
-        });
-      } else {
-        onClose();
-      }
-    }
-  }, [user, navigate, onClose]);
-
-  // Don't render if user is not authenticated
-  if (!user) {
-    return null;
-  }
 
   // Form validation
   const validateForm = () => {
@@ -82,7 +257,7 @@ function CheckoutModal({ onClose, cart, total }) {
     
     if (!formData.city.trim()) {
       errors.city = 'City is required';
-    } else if (!/^[a-zA-Z\s]+$/.test(formData.city) || formData.city.trim().length < 5) {
+    } else if (!/^[a-zA-Z\s]+$/.test(formData.city) || formData.city.trim().length < 2) {
       errors.city = 'Please enter a valid city name';
     }
     
@@ -105,16 +280,17 @@ function CheckoutModal({ onClose, cart, total }) {
   // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
+    console.log('Form change:', name, value); // Debug log
     
     // Clear validation for the field being edited
     if (formErrors[name]) {
       setFormErrors({ ...formErrors, [name]: '' });
     }
     
-    setFormData({
-      ...formData,
+    setFormData(prevData => ({
+      ...prevData,
       [name]: value
-    });
+    }));
   };
 
   // Go to next step with validation
@@ -139,81 +315,16 @@ function CheckoutModal({ onClose, cart, total }) {
     setIsSubmitting(true);
     
     try {
-      const { subtotal, shipping, total } = calculateOrderTotals(cart);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      const orderData = {
-        shippingAddress: {
-          street: formData.address,
-          city: formData.city,
-          state: formData.state,
-          zipCode: formData.zip
-        },
-        customerInfo: {
-          fullName: formData.fullName,
-          email: formData.email,
-          phone: formData.phone,
-          address: formData.address,
-          city: formData.city,
-          state: formData.state,
-          zipCode: formData.zip,
-        },
-        items: cart.map(item => ({
-          productId: item.id || item._id,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          subtotal: item.price * item.quantity,
-          image: item.image
-        })),
-        paymentMethod: formData.paymentMethod,
-        subtotal,
-        shipping,
-        total,
-        status: 'pending',
-        orderDate: new Date().toISOString()
-      };
+      const newOrderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
+      setOrderId(newOrderId);
+      setOrderComplete(true);
       
-      console.log('Submitting order:', orderData);
+      // Clear cart would go here
+      console.log('Order placed successfully:', newOrderId);
       
-      try {
-        const response = await createOrder(orderData);
-        console.log('Order API response:', response);
-        setOrderId(response.orderId || response._id || 'ORD-' + Math.floor(100000 + Math.random() * 900000));
-        
-        clearCart();
-        setOrderComplete(true);
-      } catch (apiError) {
-        console.error('API submission failed:', apiError);
-        
-        if (apiError.response) {
-          const { status, data } = apiError.response;
-          
-          if (status === 401) {
-            alert('You need to be logged in to place an order. Continuing as guest...');
-            try {
-              console.log('Trying guest checkout...');
-              const guestResponse = await axios.post(`http://localhost:5000/api/orders/guest`, orderData);
-              console.log('Guest order response:', guestResponse.data);
-              setOrderId(guestResponse.data.orderId || guestResponse.data._id || 'ORD-' + Math.floor(100000 + Math.random() * 900000));
-              clearCart();
-              setOrderComplete(true);
-              return;
-            } catch (guestError) {
-              console.error('Guest checkout also failed:', guestError);
-            }
-          } else if (status === 400) {
-            alert(`Order validation error: ${data.message || 'Please check your order details.'}`);
-            return;
-          }
-        }
-        
-        console.log('Using local fallback...');
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setOrderId('ORD-' + Math.floor(100000 + Math.random() * 900000));
-        
-        clearCart();
-        setOrderComplete(true);
-      }
     } catch (error) {
       console.error('Error submitting order:', error);
       alert('There was an error processing your order. Please try again.');
@@ -222,9 +333,15 @@ function CheckoutModal({ onClose, cart, total }) {
     }
   };
 
+  const handleModalClick = (e) => {
+    e.stopPropagation();
+  };
+
+  console.log('Current form data:', formData); // Debug log
+
   return (
     <div className="checkout-modal-overlay" onClick={onClose}>
-      <div className="checkout-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="checkout-modal" onClick={handleModalClick}>
         <button className="close-modal" onClick={onClose}>×</button>
         
         {orderComplete ? (
@@ -313,50 +430,12 @@ function CheckoutModal({ onClose, cart, total }) {
                     {formErrors.address && <span className="error-text">{formErrors.address}</span>}
                   </div>
                   
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label htmlFor="city">City *</label>
-                      <input
-                        type="text"
-                        id="city"
-                        name="city"
-                        value={formData.city}
-                        onChange={handleChange}
-                        className={formErrors.city ? 'error' : ''}
-                        required
-                      />
-                      {formErrors.city && <span className="error-text">{formErrors.city}</span>}
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="state">State *</label>
-                      <input
-                        type="text"
-                        id="state"
-                        name="state"
-                        value={formData.state}
-                        onChange={handleChange}
-                        className={formErrors.state ? 'error' : ''}
-                        placeholder="e.g., Tamil Nadu"
-                        required
-                      />
-                      {formErrors.state && <span className="error-text">{formErrors.state}</span>}
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="zip">PIN Code *</label>
-                      <input
-                        type="text"
-                        id="zip"
-                        name="zip"
-                        value={formData.zip}
-                        onChange={handleChange}
-                        className={formErrors.zip ? 'error' : ''}
-                        placeholder="6-digit PIN code"
-                        maxLength="6"
-                        required
-                      />
-                      {formErrors.zip && <span className="error-text">{formErrors.zip}</span>}
-                    </div>
-                  </div>
+                  {/* State-City Autocomplete Component */}
+                  <StateCityAutocomplete 
+                    formData={formData}
+                    handleChange={handleChange}
+                    formErrors={formErrors}
+                  />
                   
                   <div className="form-actions">
                     <button type="submit" className="next-btn">
@@ -437,7 +516,7 @@ function CheckoutModal({ onClose, cart, total }) {
                   <h3>Order Summary</h3>
                   
                   <div className="order-items">
-                    {cart.map(item => (
+                    {cart && cart.map(item => (
                       <div key={item.id} className="order-item">
                         <div className="item-image">
                           <img src={item.image} alt={item.name} />

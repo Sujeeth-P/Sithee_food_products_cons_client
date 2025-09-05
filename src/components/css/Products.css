@@ -182,6 +182,7 @@
 .products-filter {
   margin: -3rem auto 4rem auto;
   max-width: 1000px;
+  min-height: 100px;
   background: white;
   padding: 2.5rem;
   border-radius: 20px;
@@ -1237,8 +1238,8 @@
   }
 
   .products-hero {
-    height: 50vh;
-    min-height: 400px;
+    height: 30vh;
+    min-height: 250px;
     background-attachment: scroll;
   }
 
