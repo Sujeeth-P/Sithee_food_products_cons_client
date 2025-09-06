@@ -11,6 +11,8 @@
   display: flex;
   align-items: center;
   overflow: hidden;
+  background-attachment: fixed;
+  /* background-repeat: no-repeat; */
   /* z-index: 1; */
   /* margin-top: 0; */
 }

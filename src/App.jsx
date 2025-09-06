@@ -8,6 +8,7 @@ import Contact from './components/pages/Contact';
 import Cart from './components/pages/Cart';
 import Orders from './components/pages/Orders';
 import Login from "./components/pages/Login";
+import Profile from './components/pages/Profile';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import './App.css';
@@ -43,16 +44,17 @@ function AppContent() {
           <Route path="/products" element={<Products />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/cart" element={<Cart />} />
-          <Route path="/orders" element={<Orders />} />
+          <Route path="/orders" element={<Orders />} /> 
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/profile" element={<Profile />} />
 
           {/* <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/products" element={<AdminProducts />} /> */}
         </Routes>
       </main>
-      {!isAdminRoute && <Footer />}
+      {!isAdminRoute && <Footer /> }
     </div>
   );
 }

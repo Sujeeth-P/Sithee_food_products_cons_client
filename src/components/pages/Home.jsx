@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+// import { Parallax, ParallaxLayer } from '@react-spring/parallax'
 import '../css/Home.css';
+import { end } from '@popperjs/core';
 
 function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -173,7 +175,7 @@ function Home() {
   }
 
   return (
-    <div className="home-page">
+    <div className="home-page">   
       {/* Hero Section with Floating Elements */}
       <section className="hero-section">
         <div className="hero-background">
@@ -231,7 +233,6 @@ function Home() {
           </div>
         </div>
       </section>
-
       {/* About Section with Icons */}
       <section className="about-section" id="about">
         <div className="container">
@@ -331,7 +332,7 @@ function Home() {
           </div>
         </div>
       </section>
-
+    
       {/* Process Section with Icons */}
       <section className="process-section">
         <div className="container">
@@ -430,6 +431,7 @@ function Home() {
           </div>
         </div>
       </section>
+    
 
       {/* Stats Section */}
       <section className="stats-section">
@@ -461,7 +463,7 @@ function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </section>   
     </div>
   );
 }
