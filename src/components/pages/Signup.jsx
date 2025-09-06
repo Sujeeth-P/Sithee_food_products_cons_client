@@ -240,7 +240,7 @@ const Signup = () => {
                 />
                 <label>Email</label>
                 {emailError && <div className="error-message">{emailError}</div>}
-              </div>
+              </div>  
               <div className="user-box">
                 <input 
                   required 
@@ -361,7 +361,8 @@ const StyledWrapper = styled.div`
     position: relative;
     width: 100%;
     height: 100vh;
-    background: linear-gradient(135deg, rgba(248, 151, 40, 0.9), rgba(254, 113, 62, 0.85));
+    // background: linear-gradient(135deg, rgba(248, 151, 40, 0.9), rgba(254, 113, 62, 0.85));
+    background-color: rgb(234, 231, 231);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -396,6 +397,7 @@ const StyledWrapper = styled.div`
 
   .login-box .user-box {
     position: relative;
+    
   }
 
   .login-box .user-box input {
@@ -424,6 +426,7 @@ const StyledWrapper = styled.div`
     font-size: 12px;
     margin-top: -25px;
     margin-bottom: 15px;
+    height: 5px !important;
     display: block;
     animation: slideDown 0.3s ease-out;
   }

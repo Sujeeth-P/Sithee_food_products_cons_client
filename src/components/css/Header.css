@@ -1,16 +1,15 @@
 /* Modern Header Styles */
 .modern-header {
-  /* background: linear-gradient(135deg, #f7931e 0%, #ff6b35 50%, #f7931e 100%); */
-  /* backdrop-filter: blur(10px); */
+  background-color: rgb(234, 231, 231);
+  backdrop-filter: blur(10px);
   /* border-bottom: 1px solid rgba(0, 0, 0, 0.08); */
   position: fixed;
   top: 0;
   width: 100%;
-   z-index: 2;
+   z-index: 10;
   /* box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06); */
   transition: all 0.3s ease;
 }
-
 .modern-header .container {
   max-width: 1400px;
   margin: 0 auto;

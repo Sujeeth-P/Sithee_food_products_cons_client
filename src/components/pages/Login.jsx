@@ -332,8 +332,9 @@ const StyledWrapper = styled.div`
     position: relative;
     width: 100%;
     height: 100vh;
-    background: linear-gradient(135deg, rgba(248, 151, 40, 0.9), rgba(254, 113, 62, 0.85));
-    display: flex;
+    // background: linear-gradient(135deg, rgba(248, 151, 40, 0.9), rgba(254, 113, 62, 0.85));
+  background-color: rgb(234, 231, 231);
+    display: flex;  
     justify-content: center;
     align-items: center;
     overflow: hidden;

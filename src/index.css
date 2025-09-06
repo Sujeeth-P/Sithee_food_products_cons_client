@@ -47,6 +47,7 @@ a {
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
+  display: none;
 }
 
 ::-webkit-scrollbar-track {
