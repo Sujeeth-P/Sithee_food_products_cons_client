@@ -366,7 +366,7 @@ function CheckoutModal({ onClose, cart, total }) {
         setOrderComplete(true);
         setTimeout(() => {
           clearCart();
-        }, 1000);
+        }, 2000);
 
       } catch (apiError) {
         console.error('API submission failed:', apiError);
@@ -386,7 +386,7 @@ function CheckoutModal({ onClose, cart, total }) {
               setOrderComplete(true);
               setTimeout(() => {
                 clearCart();
-              }, 1000);
+              }, 2000);
               return;
 
             } catch (guestError) {
