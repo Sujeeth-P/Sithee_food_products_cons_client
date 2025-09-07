@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { createOrder, calculateOrderTotals } from '../../services/orderAPI';
@@ -61,7 +62,7 @@ const stateCityData = {
 };
 
 // State-City Autocomplete Component
-const StateCityAutocomplete = ({ formData, handleChange, formErrors }) => {
+const StateCityAutocomplete = ({ formData, handleChange,  handleZipChange, formErrors }) => {
   const [cityQuery, setCityQuery] = useState(formData.city || '');
   const [filteredCities, setFilteredCities] = useState([]);
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
@@ -201,7 +202,7 @@ const StateCityAutocomplete = ({ formData, handleChange, formErrors }) => {
           id="zip"
           name="zip"
           value={formData.zip}
-          onChange={handleChange}
+          onChange={handleZipChange}
           className={formErrors.zip ? 'error' : ''}
           placeholder="6-digit PIN code"
           maxLength="6"
@@ -227,14 +228,130 @@ function CheckoutModal({ onClose, cart, total }) {
 
   const { clearCart } = useCart();
   // const { user } = useAuth();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderId, setOrderId] = useState(null);
   const [formErrors, setFormErrors] = useState({});
 
+  
   // Form validation
+const handleFullNameChange = (e) => {
+  const value = e.target.value;
+  
+  // Update form data
+  setFormData(prevData => ({
+    ...prevData,
+    fullName: value
+  }));
+  
+  // Validate and set errors
+  const newErrors = { ...formErrors };
+  
+  if (!value.trim()) {
+    newErrors.fullName = 'Full name is required';
+  } else if (!/^[a-zA-Z\s]+$/.test(value)) {
+    newErrors.fullName = 'Full name should only contain letters and spaces';
+  } else {
+    delete newErrors.fullName;
+  }
+  
+  setFormErrors(newErrors);
+};
+
+const handleEmailChange = (e) => {
+  const value = e.target.value;
+  
+  // Update form data
+  setFormData(prevData => ({
+    ...prevData,
+    email: value
+  }));
+  
+  // Validate and set errors
+  const newErrors = { ...formErrors };
+  
+  if (!value.trim()) {
+    newErrors.email = 'Email is required';
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+    newErrors.email = 'Please enter a valid email address';
+  } else {
+    delete newErrors.email;
+  }
+  
+  setFormErrors(newErrors);
+};
+
+const handlePhoneChange = (e) => {
+  const value = e.target.value;
+  
+  // Update form data
+  setFormData(prevData => ({
+    ...prevData,
+    phone: value
+  }));
+  
+  // Validate and set errors
+  const newErrors = { ...formErrors };
+  
+  if (!value.trim()) {
+    newErrors.phone = 'Phone number is required';
+  } else if (!/^(\+91|91)?[6-9]\d{9}$/.test(value.replace(/\s+/g, ''))) {
+    newErrors.phone = 'Please enter a valid Indian phone number';
+  } else {
+    delete newErrors.phone;
+  }
+  
+  setFormErrors(newErrors);
+};
+
+const handleAddressChange = (e) => {
+  const value = e.target.value;
+  
+  // Update form data
+  setFormData(prevData => ({
+    ...prevData,
+    address: value
+  }));
+  
+  // Validate and set errors
+  const newErrors = { ...formErrors };
+  
+  if (!value.trim()) {
+    newErrors.address = 'Address is required';
+  } else if (value.trim().length < 10) {
+    newErrors.address = 'Please provide a complete address';
+  } else {
+    delete newErrors.address;
+  }
+  
+  setFormErrors(newErrors);
+};
+const handleZipChange = (e) => {
+  const value = e.target.value;
+  
+  // Update form data
+  setFormData(prevData => ({
+    ...prevData,
+    zip: value
+  }));
+  
+  // Validate and set errors
+  const newErrors = { ...formErrors };
+  
+  if (!value.trim()) {
+    newErrors.zip = 'PIN code is required';
+  } else if (!/^[1-9][0-9]{5}$/.test(value)) {
+    newErrors.zip = 'Please enter a valid 6-digit PIN code';
+  } else {
+    delete newErrors.zip;
+  }
+  
+  setFormErrors(newErrors);
+};
+
+
   const validateForm = () => {
     const errors = {};
 
@@ -287,7 +404,7 @@ function CheckoutModal({ onClose, cart, total }) {
   // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log('Form change:', name, value); // Debug log
+    // console.log('Form change:', name, value); // Debug log
 
     // Clear validation for the field being edited
     if (formErrors[name]) {
@@ -298,6 +415,7 @@ function CheckoutModal({ onClose, cart, total }) {
       ...prevData,
       [name]: value
     }));
+     
   };
 
   // Go to next step with validation
@@ -316,7 +434,51 @@ function CheckoutModal({ onClose, cart, total }) {
     setStep(step - 1);
   };
 
-  // Submit order
+  //hadleSubmit
+
+// Add the Google Sheets function OUTSIDE and BEFORE handleSubmitOrder
+const submitToGoogleSheets = async (formData, cart, orderId, finalTotal) => {
+  const scriptURL = import.meta.env.VITE_SHEETS_ORDER_URL; // Your Google Apps Script URL
+  // console.log('Submitting to Google Sheets:',scriptURL);
+  const googleFormData = new FormData();
+  // googleFormData.append('orderId', orderId);
+  googleFormData.append('fullName', formData.fullName);
+  googleFormData.append('email', formData.email); 
+  googleFormData.append('phone', formData.phone);
+  googleFormData.append('address', formData.address);
+  // googleFormData.append('city', formData.city);
+  // googleFormData.append('state', formData.state);
+  // googleFormData.append('zip', formData.zip);
+  // googleFormData.append('paymentMethod', formData.paymentMethod);
+  // googleFormData.append('total', finalTotal);
+  // googleFormData.append('orderDate', new Date().toISOString());
+
+  // // Add cart items as JSON string
+  // googleFormData.append('items', JSON.stringify(cart.map(item => ({
+  //   name: item.name,
+  //   price: item.price,
+  //   quantity: item.quantity,
+  //   subtotal: item.price * item.quantity
+  // }))));
+
+  try {
+    const response = await fetch(scriptURL, {
+      method: 'POST',
+      body: googleFormData
+    });
+
+    if (response.ok) {
+      console.log('Order data sent to Google Sheets successfully');
+    } else {
+      console.error('Error sending to Google Sheets:', response.statusText);
+    }
+  } catch (error) {
+    console.error('Error sending to Google Sheets:', error);
+    // Don't throw error - Google Sheets failure shouldn't break order flow
+  }
+};
+
+
   // Submit order
   const handleSubmitOrder = async (e) => {
     e.preventDefault();
@@ -364,8 +526,10 @@ function CheckoutModal({ onClose, cart, total }) {
         console.log('Order API response:', response);
         setOrderId(response.orderId || response._id || 'ORD-' + Math.floor(100000 + Math.random() * 900000));
         setOrderComplete(true);
+        await submitToGoogleSheets(formData, cart, response.orderId || response._id || 'ORD-' + Math.floor(100000 + Math.random() * 900000), total);
         setTimeout(() => {
           clearCart();
+          navigate('/orders');
         }, 2000);
 
       } catch (apiError) {
@@ -388,7 +552,6 @@ function CheckoutModal({ onClose, cart, total }) {
                 clearCart();
               }, 2000);
               return;
-
             } catch (guestError) {
               console.error('Guest checkout also failed:', guestError);
             }
@@ -461,12 +624,11 @@ function CheckoutModal({ onClose, cart, total }) {
                         id="fullName"
                         name="fullName"
                         value={formData.fullName}
-                        onChange={handleChange}
+                        onChange={(e) => handleFullNameChange(e)}
                         className={formErrors.fullName ? 'error' : ''}
                         required
                       />
                       {formErrors.fullName && <span className="error-text">{formErrors.fullName}</span>}
-
 
                     </div>
                   </div>
@@ -479,7 +641,7 @@ function CheckoutModal({ onClose, cart, total }) {
                         id="email"
                         name="email"
                         value={formData.email}
-                        onChange={handleChange}
+                        onChange={(e) => handleEmailChange(e)}
                         className={formErrors.email ? 'error' : ''}
                         required
                       />
@@ -492,7 +654,7 @@ function CheckoutModal({ onClose, cart, total }) {
                         id="phone"
                         name="phone"
                         value={formData.phone}
-                        onChange={handleChange}
+                        onChange={(e) => handlePhoneChange(e)}
                         className={formErrors.phone ? 'error' : ''}
                         placeholder="Enter 10-digit mobile number"
                         required
@@ -508,7 +670,7 @@ function CheckoutModal({ onClose, cart, total }) {
                       id="address"
                       name="address"
                       value={formData.address}
-                      onChange={handleChange}
+                      onChange={(e) => handleAddressChange(e)}
                       className={formErrors.address ? 'error' : ''}
                       placeholder="Enter your complete address"
                       required
@@ -520,7 +682,9 @@ function CheckoutModal({ onClose, cart, total }) {
                   <StateCityAutocomplete
                     formData={formData}
                     handleChange={handleChange}
+                    handleZipChange={handleZipChange}
                     formErrors={formErrors}
+
                   />
 
                   <div className="form-actions">
@@ -676,3 +840,4 @@ function CheckoutModal({ onClose, cart, total }) {
 }
 
 export default CheckoutModal;
+

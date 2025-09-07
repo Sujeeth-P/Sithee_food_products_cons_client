@@ -2,3 +2,49 @@
   margin: 0 auto;
   padding: 0px;
 }
+.container-profile {
+  max-width: 1400px;
+  margin: 1rem auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+.profile-section{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  margin-top: 1rem;
+}
+
+.profile-section-2{
+  margin-left: 1.4rem;
+}
+
+.profile-card{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(3px);
+}
+.profile-edit-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  padding: 25px;
+}
+

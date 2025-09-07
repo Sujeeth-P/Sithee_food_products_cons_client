@@ -4,6 +4,34 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Col } from 'react-bootstrap';
 
+
+const submitToGoogleSheets = async (userData) => {
+  const scriptURL = import.meta.env.VITE_SHEETS_USER_URL;
+  
+  const googleFormData = new FormData();
+  // googleFormData.append('type', 'signup');
+  // googleFormData.append('timestamp', new Date().toLocaleString());
+  googleFormData.append('name', userData.name);
+  googleFormData.append('email', userData.email);
+  // googleFormData.append('signupDate', new Date().toISOString());
+
+  try {
+    const response = await fetch(scriptURL, {
+      method: 'POST',
+      body: googleFormData
+    });
+
+    if (response.ok) {
+      console.log('User signup data sent to Google Sheets successfully');
+    } else {
+      console.error('Error sending signup data to Google Sheets:', response.statusText);
+    }
+  } catch (error) {
+    console.error('Error sending signup data to Google Sheets:', error);
+    // Don't throw error - Google Sheets failure shouldn't break signup flow
+  }
+};
+
 const Signup = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -185,6 +213,7 @@ const Signup = () => {
     
     try {
       const response = await register({ name, email, password });
+      await submitToGoogleSheets({ name, email });
       console.log("Signup successful:", response);
       showSuccessPopover(`Account created successfully!`, response.user?.name || response.name);
       setName('');
@@ -223,7 +252,8 @@ const Signup = () => {
                 <input 
                   required 
                   type="text" 
-                  value={name} 
+                  value={name}
+                  name='name' 
                   onChange={handleNameChange}
                   className={nameError ? 'error' : nameValid ? 'success' : ''}
                 />
@@ -235,6 +265,7 @@ const Signup = () => {
                   required 
                   type="email" 
                   value={email} 
+                  name='email'
                   onChange={handleEmailChange}
                   className={emailError ? 'error' : emailValid ? 'success' : ''}
                 />
@@ -245,7 +276,8 @@ const Signup = () => {
                 <input 
                   required 
                   type="password" 
-                  value={password} 
+                  value={password}
+                  name='password' 
                   onChange={handlePasswordChange}
                   className={passwordError ? 'error' : passwordValid ? 'success' : ''}
                 />

@@ -16,7 +16,7 @@ function Contact() {
   async function handleSubmit(event) {
   event.preventDefault();
 
-  const scriptURL = 'https://script.google.com/macros/s/AKfycbybf2JSZxveJ6elDCuV7olGB60XQhqrItbXSHLcX7qWG1T4lsqEjljryK8BGd8NhHGDFA/exec';
+  const scriptURL = import.meta.env.VITE_SHEETS_CONTACT_URL;
   const form = event.target.closest("form"); // ensures we get the <form> element
   const formData = new FormData(form);
 
@@ -122,7 +122,7 @@ function Contact() {
 
             <div className="contact-form">
               <h2>Send us a Message</h2>
-              <form action='https://script.google.com/macros/s/AKfycbybf2JSZxveJ6elDCuV7olGB60XQhqrItbXSHLcX7qWG1T4lsqEjljryK8BGd8NhHGDFA/exec' method='post' name='Sitheefoods'>
+              <form action={import.meta.env.VITE_SHEETS_CONTACT_URL} method='post' name='Sitheefoods'>
                 <div className="form-group">
                   <label htmlFor="name">Full Name *</label>
                   <input type="text" id="name" name="name" required />
