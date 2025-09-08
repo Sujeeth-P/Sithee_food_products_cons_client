@@ -62,7 +62,7 @@ const stateCityData = {
 };
 
 // State-City Autocomplete Component
-const StateCityAutocomplete = ({ formData, handleChange,  handleZipChange, formErrors }) => {
+const StateCityAutocomplete = ({ formData, handleChange, handleZipChange, formErrors }) => {
   const [cityQuery, setCityQuery] = useState(formData.city || '');
   const [filteredCities, setFilteredCities] = useState([]);
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
@@ -235,121 +235,121 @@ function CheckoutModal({ onClose, cart, total }) {
   const [orderId, setOrderId] = useState(null);
   const [formErrors, setFormErrors] = useState({});
 
-  
+
   // Form validation
-const handleFullNameChange = (e) => {
-  const value = e.target.value;
-  
-  // Update form data
-  setFormData(prevData => ({
-    ...prevData,
-    fullName: value
-  }));
-  
-  // Validate and set errors
-  const newErrors = { ...formErrors };
-  
-  if (!value.trim()) {
-    newErrors.fullName = 'Full name is required';
-  } else if (!/^[a-zA-Z\s]+$/.test(value)) {
-    newErrors.fullName = 'Full name should only contain letters and spaces';
-  } else {
-    delete newErrors.fullName;
-  }
-  
-  setFormErrors(newErrors);
-};
+  const handleFullNameChange = (e) => {
+    const value = e.target.value;
 
-const handleEmailChange = (e) => {
-  const value = e.target.value;
-  
-  // Update form data
-  setFormData(prevData => ({
-    ...prevData,
-    email: value
-  }));
-  
-  // Validate and set errors
-  const newErrors = { ...formErrors };
-  
-  if (!value.trim()) {
-    newErrors.email = 'Email is required';
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-    newErrors.email = 'Please enter a valid email address';
-  } else {
-    delete newErrors.email;
-  }
-  
-  setFormErrors(newErrors);
-};
+    // Update form data
+    setFormData(prevData => ({
+      ...prevData,
+      fullName: value
+    }));
 
-const handlePhoneChange = (e) => {
-  const value = e.target.value;
-  
-  // Update form data
-  setFormData(prevData => ({
-    ...prevData,
-    phone: value
-  }));
-  
-  // Validate and set errors
-  const newErrors = { ...formErrors };
-  
-  if (!value.trim()) {
-    newErrors.phone = 'Phone number is required';
-  } else if (!/^(\+91|91)?[6-9]\d{9}$/.test(value.replace(/\s+/g, ''))) {
-    newErrors.phone = 'Please enter a valid Indian phone number';
-  } else {
-    delete newErrors.phone;
-  }
-  
-  setFormErrors(newErrors);
-};
+    // Validate and set errors
+    const newErrors = { ...formErrors };
 
-const handleAddressChange = (e) => {
-  const value = e.target.value;
-  
-  // Update form data
-  setFormData(prevData => ({
-    ...prevData,
-    address: value
-  }));
-  
-  // Validate and set errors
-  const newErrors = { ...formErrors };
-  
-  if (!value.trim()) {
-    newErrors.address = 'Address is required';
-  } else if (value.trim().length < 10) {
-    newErrors.address = 'Please provide a complete address';
-  } else {
-    delete newErrors.address;
-  }
-  
-  setFormErrors(newErrors);
-};
-const handleZipChange = (e) => {
-  const value = e.target.value;
-  
-  // Update form data
-  setFormData(prevData => ({
-    ...prevData,
-    zip: value
-  }));
-  
-  // Validate and set errors
-  const newErrors = { ...formErrors };
-  
-  if (!value.trim()) {
-    newErrors.zip = 'PIN code is required';
-  } else if (!/^[1-9][0-9]{5}$/.test(value)) {
-    newErrors.zip = 'Please enter a valid 6-digit PIN code';
-  } else {
-    delete newErrors.zip;
-  }
-  
-  setFormErrors(newErrors);
-};
+    if (!value.trim()) {
+      newErrors.fullName = 'Full name is required';
+    } else if (!/^[a-zA-Z\s]+$/.test(value)) {
+      newErrors.fullName = 'Full name should only contain letters and spaces';
+    } else {
+      delete newErrors.fullName;
+    }
+
+    setFormErrors(newErrors);
+  };
+
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+
+    // Update form data
+    setFormData(prevData => ({
+      ...prevData,
+      email: value
+    }));
+
+    // Validate and set errors
+    const newErrors = { ...formErrors };
+
+    if (!value.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      newErrors.email = 'Please enter a valid email address';
+    } else {
+      delete newErrors.email;
+    }
+
+    setFormErrors(newErrors);
+  };
+
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+
+    // Update form data
+    setFormData(prevData => ({
+      ...prevData,
+      phone: value
+    }));
+
+    // Validate and set errors
+    const newErrors = { ...formErrors };
+
+    if (!value.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!/^(\+91|91)?[6-9]\d{9}$/.test(value.replace(/\s+/g, ''))) {
+      newErrors.phone = 'Please enter a valid Indian phone number';
+    } else {
+      delete newErrors.phone;
+    }
+
+    setFormErrors(newErrors);
+  };
+
+  const handleAddressChange = (e) => {
+    const value = e.target.value;
+
+    // Update form data
+    setFormData(prevData => ({
+      ...prevData,
+      address: value
+    }));
+
+    // Validate and set errors
+    const newErrors = { ...formErrors };
+
+    if (!value.trim()) {
+      newErrors.address = 'Address is required';
+    } else if (value.trim().length < 10) {
+      newErrors.address = 'Please provide a complete address';
+    } else {
+      delete newErrors.address;
+    }
+
+    setFormErrors(newErrors);
+  };
+  const handleZipChange = (e) => {
+    const value = e.target.value;
+
+    // Update form data
+    setFormData(prevData => ({
+      ...prevData,
+      zip: value
+    }));
+
+    // Validate and set errors
+    const newErrors = { ...formErrors };
+
+    if (!value.trim()) {
+      newErrors.zip = 'PIN code is required';
+    } else if (!/^[1-9][0-9]{5}$/.test(value)) {
+      newErrors.zip = 'Please enter a valid 6-digit PIN code';
+    } else {
+      delete newErrors.zip;
+    }
+
+    setFormErrors(newErrors);
+  };
 
 
   const validateForm = () => {
@@ -415,7 +415,7 @@ const handleZipChange = (e) => {
       ...prevData,
       [name]: value
     }));
-     
+
   };
 
   // Go to next step with validation
@@ -436,47 +436,73 @@ const handleZipChange = (e) => {
 
   //hadleSubmit
 
-// Add the Google Sheets function OUTSIDE and BEFORE handleSubmitOrder
-const submitToGoogleSheets = async (formData, cart, orderId, finalTotal) => {
-  const scriptURL = import.meta.env.VITE_SHEETS_ORDER_URL; // Your Google Apps Script URL
-  // console.log('Submitting to Google Sheets:',scriptURL);
-  const googleFormData = new FormData();
-  // googleFormData.append('orderId', orderId);
-  googleFormData.append('fullName', formData.fullName);
-  googleFormData.append('email', formData.email); 
-  googleFormData.append('phone', formData.phone);
-  googleFormData.append('address', formData.address);
-  // googleFormData.append('city', formData.city);
-  // googleFormData.append('state', formData.state);
-  // googleFormData.append('zip', formData.zip);
-  // googleFormData.append('paymentMethod', formData.paymentMethod);
-  // googleFormData.append('total', finalTotal);
-  // googleFormData.append('orderDate', new Date().toISOString());
+  // Add the Google Sheets function OUTSIDE and BEFORE handleSubmitOrder
+  const submitToGoogleSheets = async (formData, cart, orderId, finalTotal) => {
+    const scriptURL = import.meta.env.VITE_SHEETS_ORDER_URL; // Your Google Apps Script URL
+    // console.log('Submitting to Google Sheets:',scriptURL);
+    const googleFormData = new FormData();
+    googleFormData.append('orderId', orderId);
+    googleFormData.append('fullName', formData.fullName);
+    googleFormData.append('email', formData.email);
+    googleFormData.append('phone', formData.phone);
+    googleFormData.append('address', formData.address);
+    googleFormData.append('city', formData.city);
+    googleFormData.append('state', formData.state);
+    googleFormData.append('zip', formData.zip);
+    googleFormData.append('paymentMethod', formData.paymentMethod);
+    googleFormData.append('total', finalTotal);
+    // googleFormData.append('orderDate', new Date().toISOString());
+    // const now = new Date();
 
-  // // Add cart items as JSON string
-  // googleFormData.append('items', JSON.stringify(cart.map(item => ({
-  //   name: item.name,
-  //   price: item.price,
-  //   quantity: item.quantity,
-  //   subtotal: item.price * item.quantity
-  // }))));
+    // Local date & time (e.g. "2025-09-08 18:05:22")
+    // const orderDate = now.toLocaleString("en-GB", {
+    //   year: "numeric",
+    //   month: "2-digit",
+    //   day: "2-digit",
+    //   hour: "2-digit",
+    //   minute: "2-digit",
+    //   second: "2-digit"
+    // }).replace(",", "");
 
-  try {
-    const response = await fetch(scriptURL, {
-      method: 'POST',
-      body: googleFormData
-    });
+    // // Append to Google Form data
+    // googleFormData.append('orderDate', orderDate);
 
-    if (response.ok) {
-      console.log('Order data sent to Google Sheets successfully');
-    } else {
-      console.error('Error sending to Google Sheets:', response.statusText);
+
+    // // Add cart items as JSON string
+    // googleFormData.append('items', JSON.stringify(cart.map(item => ({
+    //   name: item.name,
+    //   price: item.price,
+    //   quantity: item.quantity,
+    //   subtotal: item.price * item.quantity
+    // }))));
+    const itemsText = cart.map(item =>
+      `${item.name} x${item.quantity} - ₹${item.price} = ₹${item.price * item.quantity}`
+    ).join('\n');
+
+    googleFormData.append('items', itemsText);
+
+    const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    googleFormData.append('subtotal', subtotal);
+    googleFormData.append('shipping', formData.shipping);
+
+
+
+    try {
+      const response = await fetch(scriptURL, {
+        method: 'POST',
+        body: googleFormData
+      });
+
+      if (response.ok) {
+        console.log('Order data sent to Google Sheets successfully');
+      } else {
+        console.error('Error sending to Google Sheets:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error sending to Google Sheets:', error);
+      // Don't throw error - Google Sheets failure shouldn't break order flow
     }
-  } catch (error) {
-    console.error('Error sending to Google Sheets:', error);
-    // Don't throw error - Google Sheets failure shouldn't break order flow
-  }
-};
+  };
 
 
   // Submit order
