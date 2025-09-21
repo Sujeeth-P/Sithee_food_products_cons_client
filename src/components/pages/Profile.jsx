@@ -49,8 +49,10 @@ function Profile() {
             <Card.Body>
               <Card.Title>Profile Details</Card.Title>
               <Card.Text style={{ marginTop: '2rem' }}>
+                <Form>
                 <p><strong>Name</strong><Form.Control type="text" defaultValue={selectedUser.name} /></p>
                 <p><strong>Email</strong><Form.Control type="text" defaultValue={selectedUser.email} /></p>
+              </Form>
               </Card.Text>
               <Button variant="outline-primary" style={{ marginTop: '2rem' }} onClick={() => handleSaveChanges(selectedUser)}>Save Changes</Button>
           {/* <section className="profile-edit-section">
