@@ -92,7 +92,7 @@ function Cart() {
   return (
     <div className="cart-page">
       <div className="container">
-        <h1>Your Shopping Cart</h1>
+        {/* <h1>Your Shopping Cart</h1> */}
         
         <div className="cart-header">
           <div className="cart-row">

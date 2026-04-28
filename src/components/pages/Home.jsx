@@ -16,6 +16,8 @@ function Home() {
     });
   }, []);
 
+
+
   // All products organized by categories
   const productCategories = {
     "Flour Products": [
@@ -177,15 +179,48 @@ function Home() {
   return (
     <div className="home-page">   
       {/* Hero Section with Floating Elements */}
+  {/* <div className="marquee-bar">
+  <div className="marquee-content">
+    <span>🎉 Special Offer: Free Delivery on Orders Above ₹500</span>
+    <span> 100% Natural & Organic Products</span>
+    <span> Freshly Milled Traditional Flours</span>
+    <span> Fast Delivery Across India</span>
+    <span>💚 Trusted by 10,000+ Happy Customers</span>
+    <span>🎉 Special Offer: Free Delivery on Orders Above ₹500</span>
+    <span> 100% Natural & Organic Products</span>
+    <span> Freshly Milled Traditional Flours</span>
+        <span> Fast Delivery Across India</span>
+
+  </div>
+</div> */}<div class="marquee-bar">
+  <div class="marquee-inner">
+    <div class="marquee-content">
+      <span>🎉 Special Offer: Free Delivery on Orders Above ₹500</span>
+      <span>100% Natural & Organic Products</span>
+      <span>Freshly Milled Traditional Flours</span>
+      <span>Fast Delivery Across India</span>
+      <span>💚 Trusted by 10,000+ Happy Customers</span>
+    </div>
+    <div class="marquee-content">
+      <span>🎉 Special Offer: Free Delivery on Orders Above ₹500</span>
+      <span>100% Natural & Organic Products</span>
+      <span>Freshly Milled Traditional Flours</span>
+      <span>Fast Delivery Across India</span>
+      <span>💚 Trusted by 10,000+ Happy Customers</span>
+    </div>
+  </div>
+</div>
+
+
       <section className="hero-section">
-        <div className="hero-background">
+        {/* <div className="hero-background">
           <div className="floating-element fruit-1">🥭</div>
           <div className="floating-element fruit-2">🍊</div>
           <div className="floating-element fruit-3">🥥</div>
           <div className="floating-element leaf-1">🌿</div>
           <div className="floating-element leaf-2">🍃</div>
           <div className="floating-element grain-1">🌾</div>
-        </div>
+        </div> */}
         
         <div className="container">
           <div className="row align-items-center min-vh-100">
@@ -214,17 +249,17 @@ function Home() {
             <div className="col-lg-6">
               <div className="hero-image">
                 <div className="product-showcase">
-                  <img 
+                  {/* <img 
                     src="https://5.imimg.com/data5/SELLER/Default/2025/4/503334512/HC/XO/FJ/122442363/wheat-flour-250x250.jpeg" 
                     alt="Premium Flour Products" 
                     className="main-product-image"
-                  />
+                  /> */}
                   <div className="floating-products">
                     <div className="floating-product product-1">
-                      <img src="https://5.imimg.com/data5/SELLER/Default/2025/4/503333782/UT/NA/UR/122442363/roasted-vermicelli-250x250.jpeg" alt="Rice Flour" />
+                      {/* <img src="https://5.imimg.com/data5/SELLER/Default/2025/4/503333782/UT/NA/UR/122442363/roasted-vermicelli-250x250.jpeg" alt="Rice Flour" /> */}
                     </div>
                     <div className="floating-product product-2">
-                      <img src="https://5.imimg.com/data5/SELLER/Default/2025/4/503333979/MS/BN/GX/122442363/double-roasted-rava-sooji-250x250.jpeg" alt="Ragi Flour" />
+                      {/* <img src="https://5.imimg.com/data5/SELLER/Default/2025/4/503333979/MS/BN/GX/122442363/double-roasted-rava-sooji-250x250.jpeg" alt="Ragi Flour" /> */}
                     </div>
                   </div>
                 </div>

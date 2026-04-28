@@ -66,9 +66,9 @@ function Contact() {
   return (
     <div className="contact-page">
       {/* Hero Section - Mobile First */}
-      <section className="py-5" style={{ background: 'linear-gradient(135deg, #2c1810, #3d2518)' }}>
-        <div className="container text-center text-white">
-          <h1 className="display-5 fw-bold mb-3">Contact Us</h1>
+      <section className="py-5" style={{ backgroundColor: '#f8f9fa' }}>
+        <div className="container text-center text-blqack">
+          <h1 className="display-5 pt-5 fw-bold mb-3 mt-5">Contact Us</h1>
           <p className="lead mb-0">Get in touch with us for any inquiries about our premium food products</p>
         </div>
       </section>
@@ -87,7 +87,7 @@ function Contact() {
                   <div className="contact-icon">📍</div>
                   <div className="contact-text">
                     <h4>Address</h4>
-                    <p>123 Heritage Street, Tamil Nadu, India - 600001</p>
+                    <p>147, Near Ration Shop, C.mettupalayam, Perode-638102</p>
                   </div>
                 </div>
 

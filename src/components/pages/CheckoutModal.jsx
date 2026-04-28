@@ -4,6 +4,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { createOrder, calculateOrderTotals } from '../../services/orderAPI';
+import { createPaymentOrder, verifyPayment } from '../../services/paymentAPI';
 import '../css/CheckoutModal.css';
 
 // State-City data for autocomplete
@@ -67,12 +68,10 @@ const StateCityAutocomplete = ({ formData, handleChange, handleZipChange, formEr
   const [filteredCities, setFilteredCities] = useState([]);
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
 
-  // Update city query when formData.city changes
   useEffect(() => {
     setCityQuery(formData.city || '');
   }, [formData.city]);
 
-  // Filter cities based on selected state and search query
   useEffect(() => {
     if (formData.state && stateCityData[formData.state]) {
       const availableCities = stateCityData[formData.state];
@@ -93,7 +92,6 @@ const StateCityAutocomplete = ({ formData, handleChange, handleZipChange, formEr
     e.preventDefault();
     e.stopPropagation();
     const state = e.target.value;
-    console.log('State selected:', state); // Debug log
     handleChange({ target: { name: 'state', value: state } });
     handleChange({ target: { name: 'city', value: '' } });
     setCityQuery('');
@@ -169,7 +167,6 @@ const StateCityAutocomplete = ({ formData, handleChange, handleZipChange, formEr
           />
           {formErrors.city && <span className="error-text">{formErrors.city}</span>}
 
-          {/* City Suggestions Dropdown */}
           {showCitySuggestions && formData.state && filteredCities.length > 0 && (
             <div className="city-suggestions">
               {filteredCities.slice(0, 8).map(city => (
@@ -184,7 +181,6 @@ const StateCityAutocomplete = ({ formData, handleChange, handleZipChange, formEr
             </div>
           )}
 
-          {/* No cities found message */}
           {showCitySuggestions && formData.state && cityQuery && filteredCities.length === 0 && (
             <div className="city-suggestions">
               <div className="city-suggestion-item" style={{ color: '#666', cursor: 'default' }}>
@@ -223,32 +219,24 @@ function CheckoutModal({ onClose, cart, total }) {
     city: '',
     state: '',
     zip: '',
-    paymentMethod: 'cod'
+    paymentMethod: 'razorpay'
   });
 
   const { clearCart } = useCart();
-  // const { user } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderId, setOrderId] = useState(null);
   const [formErrors, setFormErrors] = useState({});
+  const [processingPayment, setProcessingPayment] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState('');
 
-
-  // Form validation
+  // Form validation handlers
   const handleFullNameChange = (e) => {
     const value = e.target.value;
-
-    // Update form data
-    setFormData(prevData => ({
-      ...prevData,
-      fullName: value
-    }));
-
-    // Validate and set errors
+    setFormData(prevData => ({ ...prevData, fullName: value }));
     const newErrors = { ...formErrors };
-
     if (!value.trim()) {
       newErrors.fullName = 'Full name is required';
     } else if (!/^[a-zA-Z\s]+$/.test(value)) {
@@ -256,22 +244,13 @@ function CheckoutModal({ onClose, cart, total }) {
     } else {
       delete newErrors.fullName;
     }
-
     setFormErrors(newErrors);
   };
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
-
-    // Update form data
-    setFormData(prevData => ({
-      ...prevData,
-      email: value
-    }));
-
-    // Validate and set errors
+    setFormData(prevData => ({ ...prevData, email: value }));
     const newErrors = { ...formErrors };
-
     if (!value.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
@@ -279,22 +258,13 @@ function CheckoutModal({ onClose, cart, total }) {
     } else {
       delete newErrors.email;
     }
-
     setFormErrors(newErrors);
   };
 
   const handlePhoneChange = (e) => {
     const value = e.target.value;
-
-    // Update form data
-    setFormData(prevData => ({
-      ...prevData,
-      phone: value
-    }));
-
-    // Validate and set errors
+    setFormData(prevData => ({ ...prevData, phone: value }));
     const newErrors = { ...formErrors };
-
     if (!value.trim()) {
       newErrors.phone = 'Phone number is required';
     } else if (!/^(\+91|91)?[6-9]\d{9}$/.test(value.replace(/\s+/g, ''))) {
@@ -302,22 +272,13 @@ function CheckoutModal({ onClose, cart, total }) {
     } else {
       delete newErrors.phone;
     }
-
     setFormErrors(newErrors);
   };
 
   const handleAddressChange = (e) => {
     const value = e.target.value;
-
-    // Update form data
-    setFormData(prevData => ({
-      ...prevData,
-      address: value
-    }));
-
-    // Validate and set errors
+    setFormData(prevData => ({ ...prevData, address: value }));
     const newErrors = { ...formErrors };
-
     if (!value.trim()) {
       newErrors.address = 'Address is required';
     } else if (value.trim().length < 10) {
@@ -325,21 +286,13 @@ function CheckoutModal({ onClose, cart, total }) {
     } else {
       delete newErrors.address;
     }
-
     setFormErrors(newErrors);
   };
+
   const handleZipChange = (e) => {
     const value = e.target.value;
-
-    // Update form data
-    setFormData(prevData => ({
-      ...prevData,
-      zip: value
-    }));
-
-    // Validate and set errors
+    setFormData(prevData => ({ ...prevData, zip: value }));
     const newErrors = { ...formErrors };
-
     if (!value.trim()) {
       newErrors.zip = 'PIN code is required';
     } else if (!/^[1-9][0-9]{5}$/.test(value)) {
@@ -347,99 +300,72 @@ function CheckoutModal({ onClose, cart, total }) {
     } else {
       delete newErrors.zip;
     }
-
     setFormErrors(newErrors);
   };
 
-
   const validateForm = () => {
     const errors = {};
-
     if (!formData.fullName.trim()) {
       errors.fullName = 'Full name is required';
     } else if (!/^[a-zA-Z\s]+$/.test(formData.fullName)) {
       errors.fullName = 'Full name should only contain letters and spaces';
     }
-
     if (!formData.email.trim()) {
       errors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       errors.email = 'Please enter a valid email address';
     }
-
     if (!formData.phone.trim()) {
       errors.phone = 'Phone number is required';
     } else if (!/^(\+91|91)?[6-9]\d{9}$/.test(formData.phone.replace(/\s+/g, ''))) {
       errors.phone = 'Please enter a valid Indian phone number';
     }
-
     if (!formData.address.trim()) {
       errors.address = 'Address is required';
     } else if (formData.address.trim().length < 10) {
       errors.address = 'Please provide a complete address';
     }
-
     if (!formData.city.trim()) {
       errors.city = 'City is required';
     } else if (!/^[a-zA-Z\s]+$/.test(formData.city) || formData.city.trim().length < 2) {
       errors.city = 'Please enter a valid city name';
     }
-
     if (!formData.state.trim()) {
       errors.state = 'State is required';
     } else if (formData.state.trim().length < 3) {
       errors.state = 'Please enter a valid state name';
     }
-
     if (!formData.zip.trim()) {
       errors.zip = 'PIN code is required';
     } else if (!/^[1-9][0-9]{5}$/.test(formData.zip)) {
       errors.zip = 'Please enter a valid 6-digit PIN code';
     }
-
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // console.log('Form change:', name, value); // Debug log
-
-    // Clear validation for the field being edited
     if (formErrors[name]) {
       setFormErrors({ ...formErrors, [name]: '' });
     }
-
-    setFormData(prevData => ({
-      ...prevData,
-      [name]: value
-    }));
-
+    setFormData(prevData => ({ ...prevData, [name]: value }));
   };
 
-  // Go to next step with validation
   const handleNextStep = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) {
       return;
     }
-
     setStep(step + 1);
   };
 
-  // Go back to previous step
   const handlePrevStep = () => {
     setStep(step - 1);
   };
 
-  //hadleSubmit
-
-  // Add the Google Sheets function OUTSIDE and BEFORE handleSubmitOrder
   const submitToGoogleSheets = async (formData, cart, orderId, finalTotal) => {
-    const scriptURL = import.meta.env.VITE_SHEETS_ORDER_URL; // Your Google Apps Script URL
-    // console.log('Submitting to Google Sheets:',scriptURL);
+    const scriptURL = import.meta.env.VITE_SHEETS_ORDER_URL;
     const googleFormData = new FormData();
     googleFormData.append('orderId', orderId);
     googleFormData.append('fullName', formData.fullName);
@@ -451,48 +377,21 @@ function CheckoutModal({ onClose, cart, total }) {
     googleFormData.append('zip', formData.zip);
     googleFormData.append('paymentMethod', formData.paymentMethod);
     googleFormData.append('total', finalTotal);
-    // googleFormData.append('orderDate', new Date().toISOString());
-    // const now = new Date();
 
-    // Local date & time (e.g. "2025-09-08 18:05:22")
-    // const orderDate = now.toLocaleString("en-GB", {
-    //   year: "numeric",
-    //   month: "2-digit",
-    //   day: "2-digit",
-    //   hour: "2-digit",
-    //   minute: "2-digit",
-    //   second: "2-digit"
-    // }).replace(",", "");
-
-    // // Append to Google Form data
-    // googleFormData.append('orderDate', orderDate);
-
-
-    // // Add cart items as JSON string
-    // googleFormData.append('items', JSON.stringify(cart.map(item => ({
-    //   name: item.name,
-    //   price: item.price,
-    //   quantity: item.quantity,
-    //   subtotal: item.price * item.quantity
-    // }))));
     const itemsText = cart.map(item =>
       `${item.name} x${item.quantity} - ₹${item.price} = ₹${item.price * item.quantity}`
     ).join('\n');
-
     googleFormData.append('items', itemsText);
 
     const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
     googleFormData.append('subtotal', subtotal);
-    googleFormData.append('shipping', formData.shipping);
-
-
+    googleFormData.append('shipping', 50);
 
     try {
       const response = await fetch(scriptURL, {
         method: 'POST',
         body: googleFormData
       });
-
       if (response.ok) {
         console.log('Order data sent to Google Sheets successfully');
       } else {
@@ -500,18 +399,130 @@ function CheckoutModal({ onClose, cart, total }) {
       }
     } catch (error) {
       console.error('Error sending to Google Sheets:', error);
-      // Don't throw error - Google Sheets failure shouldn't break order flow
     }
   };
 
+  const initializeRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
 
-  // Submit order
+  const handlePayment = async (orderData, total) => {
+    try {
+      setProcessingPayment(true);
+      setPaymentStatus('Initializing payment...');
+      
+      const res = await initializeRazorpay();
+      if (!res) {
+        throw new Error("Razorpay SDK failed to load");
+      }
+      
+      setPaymentStatus('Creating payment order...');
+      const paymentOrder = await createPaymentOrder(Number(total));
+      
+      if (!paymentOrder || !paymentOrder.orderId) {
+        throw new Error("Failed to create payment order");
+      }
+
+      const options = {
+        key: paymentOrder.keyId,
+        amount: paymentOrder.amount,
+        currency: paymentOrder.currency,
+        name: "Sithee Food Products",
+        description: "Payment for your order",
+        order_id: paymentOrder.orderId,
+        prefill: {
+          name: formData.fullName,
+          email: formData.email,
+          contact: formData.phone,
+        },
+        modal: {
+          ondismiss: function() {
+            console.log('Payment modal closed');
+            setProcessingPayment(false);
+            setIsSubmitting(false);
+            setPaymentStatus('Payment cancelled');
+            setTimeout(() => {
+              setPaymentStatus('');
+            }, 3000);
+          },
+          escape: true,
+          confirm_close: true
+        },
+        retry: {
+          enabled: false
+        },
+        theme: {
+          color: "#1A73E8",
+          hide_topbar: false
+        },
+        remember_customer: true,
+        handler: async function(response) {
+          try {
+            setPaymentStatus('Verifying payment...');
+            const verification = await verifyPayment({
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+
+            if (verification.verified) {
+              setPaymentStatus('Creating order...');
+              orderData.paymentStatus = 'paid';
+              orderData.paymentId = response.razorpay_payment_id;
+              orderData.razorpay_order_id = response.razorpay_order_id;
+              const orderResponse = await createOrder(orderData);
+              
+              setOrderId(orderResponse.orderId || orderResponse._id);
+              setPaymentStatus('Finalizing order...');
+              await submitToGoogleSheets(formData, cart, orderResponse.orderId || orderResponse._id, total);
+              
+              setOrderComplete(true);
+              setPaymentStatus('Payment successful! Redirecting...');
+              
+              setTimeout(() => {
+                clearCart();
+                setProcessingPayment(false);
+                navigate('/orders');
+              }, 2000);
+            } else {
+              throw new Error('Payment verification failed');
+            }
+          } catch (error) {
+            console.error('Payment verification failed:', error);
+            setPaymentStatus('Payment verification failed');
+            setProcessingPayment(false);
+            setIsSubmitting(false);
+            alert('Payment verification failed. Please try again.');
+          }
+        }
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+      return true;
+
+    } catch (error) {
+      console.error('Payment initialization failed:', error);
+      setPaymentStatus('Payment initialization failed');
+      setProcessingPayment(false);
+      setIsSubmitting(false);
+      alert(error.message || 'Payment initialization failed. Please try again.');
+      return false;
+    }
+  };
+
   const handleSubmitOrder = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      const { subtotal, shipping, total } = calculateOrderTotals(cart);
+      const { subtotal, shipping, total: finalTotal } = calculateOrderTotals(cart);
 
       const orderData = {
         shippingAddress: {
@@ -540,64 +551,26 @@ function CheckoutModal({ onClose, cart, total }) {
         paymentMethod: formData.paymentMethod,
         subtotal,
         shipping,
-        total,
+        total: finalTotal,
         status: 'pending',
         orderDate: new Date().toISOString()
       };
 
-      console.log('Submitting order:', orderData);
-
-      try {
+      if (formData.paymentMethod === 'razorpay') {
+        const paymentSuccess = await handlePayment(orderData, finalTotal);
+        if (!paymentSuccess) {
+          throw new Error('Payment failed or was cancelled');
+        }
+      } else {
         const response = await createOrder(orderData);
-        console.log('Order API response:', response);
         setOrderId(response.orderId || response._id || 'ORD-' + Math.floor(100000 + Math.random() * 900000));
         setOrderComplete(true);
-        await submitToGoogleSheets(formData, cart, response.orderId || response._id || 'ORD-' + Math.floor(100000 + Math.random() * 900000), total);
+        await submitToGoogleSheets(formData, cart, response.orderId || response._id, finalTotal);
         setTimeout(() => {
           clearCart();
           navigate('/orders');
         }, 2000);
-
-      } catch (apiError) {
-        console.error('API submission failed:', apiError);
-
-        if (apiError.response) {
-          const { status, data } = apiError.response;
-
-          if (status === 401) {
-            alert('You need to be logged in to place an order. Continuing as guest...');
-
-            try {
-              console.log('Trying guest checkout...');
-              const guestResponse = await axios.post(`http://localhost:5000/api/orders/guest`, orderData);
-              console.log('Guest order response:', guestResponse.data);
-
-              setOrderId(guestResponse.data.orderId || guestResponse.data._id || 'ORD-' + Math.floor(100000 + Math.random() * 900000));
-              setOrderComplete(true);
-              setTimeout(() => {
-                clearCart();
-              }, 2000);
-              return;
-            } catch (guestError) {
-              console.error('Guest checkout also failed:', guestError);
-            }
-
-          } else if (status === 400) {
-            alert(`Order validation error: ${data.message || 'Please check your order details.'}`);
-            return;
-          }
-        }
-
-        // Local fallback if all API calls fail
-        console.log('Using local fallback...');
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setOrderId('ORD-' + Math.floor(100000 + Math.random() * 900000));
-        setOrderComplete(true);
-        // setTimeout(() => {
-        //   clearCart();
-        // }, 1000);
       }
-
     } catch (error) {
       console.error('Error submitting order:', error);
       alert('There was an error processing your order. Please try again.');
@@ -609,8 +582,6 @@ function CheckoutModal({ onClose, cart, total }) {
   const handleModalClick = (e) => {
     e.stopPropagation();
   };
-
-  console.log('Current form data:', formData); // Debug log
 
   return (
     <div className="checkout-modal-overlay" onClick={onClose}>
@@ -650,12 +621,11 @@ function CheckoutModal({ onClose, cart, total }) {
                         id="fullName"
                         name="fullName"
                         value={formData.fullName}
-                        onChange={(e) => handleFullNameChange(e)}
+                        onChange={handleFullNameChange}
                         className={formErrors.fullName ? 'error' : ''}
                         required
                       />
                       {formErrors.fullName && <span className="error-text">{formErrors.fullName}</span>}
-
                     </div>
                   </div>
 
@@ -667,7 +637,7 @@ function CheckoutModal({ onClose, cart, total }) {
                         id="email"
                         name="email"
                         value={formData.email}
-                        onChange={(e) => handleEmailChange(e)}
+                        onChange={handleEmailChange}
                         className={formErrors.email ? 'error' : ''}
                         required
                       />
@@ -680,7 +650,7 @@ function CheckoutModal({ onClose, cart, total }) {
                         id="phone"
                         name="phone"
                         value={formData.phone}
-                        onChange={(e) => handlePhoneChange(e)}
+                        onChange={handlePhoneChange}
                         className={formErrors.phone ? 'error' : ''}
                         placeholder="Enter 10-digit mobile number"
                         required
@@ -696,7 +666,7 @@ function CheckoutModal({ onClose, cart, total }) {
                       id="address"
                       name="address"
                       value={formData.address}
-                      onChange={(e) => handleAddressChange(e)}
+                      onChange={handleAddressChange}
                       className={formErrors.address ? 'error' : ''}
                       placeholder="Enter your complete address"
                       required
@@ -704,13 +674,11 @@ function CheckoutModal({ onClose, cart, total }) {
                     {formErrors.address && <span className="error-text">{formErrors.address}</span>}
                   </div>
 
-                  {/* State-City Autocomplete Component */}
                   <StateCityAutocomplete
                     formData={formData}
                     handleChange={handleChange}
                     handleZipChange={handleZipChange}
                     formErrors={formErrors}
-
                   />
 
                   <div className="form-actions">
@@ -741,40 +709,15 @@ function CheckoutModal({ onClose, cart, total }) {
                     <div className="payment-option">
                       <input
                         type="radio"
-                        id="upi"
+                        id="razorpay"
                         name="paymentMethod"
-                        value="upi"
-                        checked={formData.paymentMethod === 'upi'}
+                        value="razorpay"
+                        checked={formData.paymentMethod === 'razorpay'}
                         onChange={handleChange}
                       />
-                      <label htmlFor="upi">UPI Payment</label>
-                    </div>
-
-                    <div className="payment-option">
-                      <input
-                        type="radio"
-                        id="card"
-                        name="paymentMethod"
-                        value="card"
-                        checked={formData.paymentMethod === 'card'}
-                        onChange={handleChange}
-                      />
-                      <label htmlFor="card">Credit/Debit Card</label>
+                      <label htmlFor="razorpay">Pay Online (UPI/Card/NetBanking)</label>
                     </div>
                   </div>
-
-                  {formData.paymentMethod === 'upi' && (
-                    <div className="upi-details">
-                      <p>Send payment to: <strong>sitheefoods@upi</strong></p>
-                      <p>Scan the QR code during delivery</p>
-                    </div>
-                  )}
-
-                  {formData.paymentMethod === 'card' && (
-                    <div className="card-payment-note">
-                      <p>Card payment will be processed at the time of delivery.</p>
-                    </div>
-                  )}
 
                   <div className="form-actions">
                     <button type="button" className="back-btn" onClick={handlePrevStep}>
@@ -833,9 +776,7 @@ function CheckoutModal({ onClose, cart, total }) {
 
                     <h4>Payment Method</h4>
                     <p>
-                      {formData.paymentMethod === 'cod' && 'Cash on Delivery'}
-                      {formData.paymentMethod === 'upi' && 'UPI Payment'}
-                      {formData.paymentMethod === 'card' && 'Credit/Debit Card'}
+                      {formData.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment (UPI/Card/NetBanking)'}
                     </p>
                   </div>
 
@@ -844,17 +785,30 @@ function CheckoutModal({ onClose, cart, total }) {
                       type="button"
                       className="back-btn"
                       onClick={handlePrevStep}
+                      disabled={processingPayment}
                     >
                       Back
                     </button>
                     <button
                       type="submit"
                       className="place-order-btn"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || processingPayment}
                     >
-                      {isSubmitting ? 'Processing...' : 'Place Order'}
+                      {isSubmitting || processingPayment ? (
+                        <>
+                          <span className="spinner"></span>
+                          {paymentStatus || 'Processing...'}
+                        </>
+                      ) : (
+                        'Place Order'
+                      )}
                     </button>
                   </div>
+                  {paymentStatus && (
+                    <div className={`payment-status ${orderComplete ? 'success' : ''}`}>
+                      {paymentStatus}
+                    </div>
+                  )}
                 </form>
               )}
             </div>
@@ -866,4 +820,3 @@ function CheckoutModal({ onClose, cart, total }) {
 }
 
 export default CheckoutModal;
-
