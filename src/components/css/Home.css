@@ -1,7 +1,9 @@
 /* Marquee Notification Bar */
 .home-page {
  overflow-x: hidden;
+
 }
+
 /* .marquee-bar {
   background: linear-gradient(135deg, #f7931e 0%, #ff8c42 100%);
   color: white;
@@ -132,14 +134,14 @@
   align-items: center;
   overflow: hidden;
   background-attachment: fixed;
-  background-image:url('D:\Sithee food masala(cons)\projvite\sithee-cons\src\assets\home.png');
+  background-image: url('../../assets/home.png');
   background-repeat: no-repeat;
   /* z-index: 1; */
   /* margin-top: 0; */
   background-size: cover;
   background-position: center 10%;
   image-rendering:optimizeQuality;  
-  opacity:black 0.9; 
+  opacity: 0.9; 
   }
 
 .hero-background {
